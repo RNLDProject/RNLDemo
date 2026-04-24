@@ -10,8 +10,8 @@ class GenderController extends Controller
 {
     public function loadGenders()
     {
-        $genders = Gender::where('tbl_genders.is_deleted', false)
-            ->get();
+        // Mas malinis kung 'is_deleted', 0 or false
+        $genders = Gender::where('is_deleted', 0)->get();
 
         return response()->json([
             'genders' => $genders
@@ -26,6 +26,7 @@ class GenderController extends Controller
 
         Gender::create([
             'gender' => $validated['gender'],
+            'is_deleted' => 0 // default na hindi deleted
         ]);
 
         return response()->json([
@@ -35,15 +36,26 @@ class GenderController extends Controller
 
     public function getGender($genderId)
     {
+        // Dahil 'gender_id' ang primary key mo, manual find natin
         $gender = Gender::find($genderId);
+
+        if (!$gender) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
 
         return response()->json([
             'gender' => $gender
         ], 200);
     }
 
-    public function updateGender(Request $request, Gender $gender)
+    public function updateGender(Request $request, $genderId) // Pinalitan ko ng $genderId
     {
+        $gender = Gender::find($genderId);
+
+        if (!$gender) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         $validated = $request->validate([
             'gender' => ['required', 'min:3', 'max:30']
         ]);
@@ -58,10 +70,16 @@ class GenderController extends Controller
         ], 200);
     }
 
-    public function destroyGender(Gender $gender)
+    public function destroyGender($genderId) // Pinalitan ko ng $genderId
     {
+        $gender = Gender::find($genderId);
+
+        if (!$gender) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         $gender->update([
-            'is_deleted' => true
+            'is_deleted' => 1 // 1 means true/deleted
         ]);
 
         return response()->json([

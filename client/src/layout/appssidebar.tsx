@@ -6,12 +6,12 @@ const AppSidebar = () => {
 
   const sidebarItems = [
     {
-      path: "#",
-      text: "Gender List",
+      path: "/",
+      text: "Gender",
     },
     {
-      path: "#",
-      text: "User List",
+      path: "/users",
+      text: "User",
     },
   ];
 
