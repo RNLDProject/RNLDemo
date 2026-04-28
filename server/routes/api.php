@@ -1,9 +1,22 @@
 <?php
-
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GenderController;
 use App\Http\Controllers\Api\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::controller(AuthController::class)->prefix('/auth')->group(function(){
+    Route::post('/login', 'login');
+    
+});
+
+Route::middleware('auth:sanctum')
+    ->prefix('auth')
+    ->controller(AuthController::class)
+    ->group(function () {
+        Route::post('/logout', 'logout');
+        Route::get('/me', 'me');
+});
+
 
 Route::controller(GenderController::class)->prefix('/gender')->group(function () {
     Route::get('/loadGenders', 'loadGenders'); 
@@ -16,15 +29,8 @@ Route::controller(GenderController::class)->prefix('/gender')->group(function ()
 Route::controller(UserController::class)->prefix('/user')->group(function () {
     Route::get('/loadUsers', 'loadUsers'); 
     Route::post('/storeUser', 'storeUser'); 
-    Route::put('/updateUser/{userId}', 'updateUser');
-    Route::put('/destroyUser/{userId}', 'destroyUser');
-
+    Route::put('/updateUser/{user_id}', 'updateUser');
+    Route::put('/destroyUser/{user_id}', 'destroyUser');
 });
 
-// Explicit routes to avoid any route-group binding/cache mismatch.
-Route::put('/user/updateUser/{userId}', [UserController::class, 'updateUser']);
-Route::put('/user/destroyUser/{userId}', [UserController::class, 'destroyUser']);
 
-// Route::get('/user', function (Request $request) {
-//    return $request->user();
-// })->middleware('auth:sanctum');

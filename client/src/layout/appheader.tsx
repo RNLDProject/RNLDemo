@@ -1,12 +1,53 @@
 import { useSidebar } from "../Context/SideBarContext";
 import { useHeader } from "../Context/HeaderContext";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
 
 const AppHeader = () => {
   const { isOpen, toggleUserMenu } = useHeader();
   const sidebar = useSidebar();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleMenuClick = () => {
-    if (isOpen) toggleUserMenu();
+  const { user, logout } = useAuth();
+
+  const fullName = useMemo(() => {
+    if (!user) return "";
+
+    let formattedName = `${user.user.last_name}, ${user.user.first_name}`;
+
+    if (user.user.middle_name) {
+      formattedName += ` ${user.user.middle_name.charAt(0)}.`;
+    }
+
+    if (user.user.suffix_name) {
+      formattedName += ` ${user.user.suffix_name}`;
+    }
+
+    return formattedName;
+  }, [user]);
+
+  const userInitials = useMemo(() => {
+    if (!user) return "U";
+
+    return `${user.user.first_name.charAt(0)}${user.user.last_name.charAt(0)}`.toUpperCase();
+  }, [user]);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoading(true);
+
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error(
+        "Unexpected server error occurred during logging user out: ",
+        error
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,7 +81,9 @@ const AppHeader = () => {
                   className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
                 >
                   <span className="sr-only">Open user menu</span>
-                  <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                    {userInitials}
+                  </div>
                 </button>
               </div>
 
@@ -50,16 +93,23 @@ const AppHeader = () => {
 
                   <div className="absolute right-0 top-10 z-50 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600 min-w-[150px]">
                     <div className="px-4 py-3" role="none">
-                      <p className="text-sm text-gray-900 dark:text-white text-left" role="none">Neil Sims</p>
-                      <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300 text-left" role="none">neil.sims@flowbite.com</p>
+                      <p className="text-sm text-gray-900 dark:text-white text-left" role="none">
+                        {fullName || "Unknown User"}
+                      </p>
+                      <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300 text-left" role="none">
+                        {user?.user.username ?? ""}
+                      </p>
                     </div>
                     <ul className="py-1" role="none">
                       <li>
                         <button
-                          onClick={handleMenuClick}
-                          className="block w-full px-4 py-2 text-sm text-gray-700 text-left hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                          type="button"
+                          className="block w-full cursor-pointer px-4 py-2 text-start text-sm text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                          role="menuitem"
+                          onClick={handleLogout}
+                          disabled={isLoading}
                         >
-                          Sign out
+                          {isLoading ? "Signing Out..." : "Sign Out"}
                         </button>
                       </li>
                     </ul>

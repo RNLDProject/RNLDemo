@@ -2,10 +2,10 @@ import { useEffect, useState, type FC, type FormEvent } from "react";
 import BackButton from "../../../components/Button/BackButton";
 import SubmitButton from "../../../components/Button/SubmitButton";
 import FloatingLabelInput from "../../../components/input/FloatingLabelInput";
-import type { GenderFieldErrors } from "../../../interfaces/GenderFieldErrors";
 import GenderService from "../../../services/GenderService";
 import { useParams } from "react-router-dom";
 import Spinner from "../../../components/Spinner/Spinner";
+import type { GenderFieldErrors } from "../../../interfaces/GenderInterface";
 
 interface EditGenderFormProps {
   onGenderUpdated: (message: string) => void;
@@ -108,7 +108,7 @@ const EditGenderForm: FC<EditGenderFormProps> = ({ onGenderUpdated }) => {
             />
           </div>
           <div className="flex justify-end gap-2">
-            {!loadingUpdate && <BackButton label="Back" path="/" />}
+            {!loadingUpdate && <BackButton label="Back" path="/genders" />}
             <SubmitButton
               label="Update Gender"
               loading={loadingUpdate}

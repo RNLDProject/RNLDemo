@@ -10,7 +10,7 @@ class GenderController extends Controller
 {
     public function loadGenders()
     {
-        // Mas malinis kung 'is_deleted', 0 or false
+        
         $genders = Gender::where('is_deleted', 0)->get();
 
         return response()->json([
@@ -26,7 +26,7 @@ class GenderController extends Controller
 
         Gender::create([
             'gender' => $validated['gender'],
-            'is_deleted' => 0 // default na hindi deleted
+            'is_deleted' => 0 
         ]);
 
         return response()->json([
@@ -36,7 +36,7 @@ class GenderController extends Controller
 
     public function getGender($genderId)
     {
-        // Dahil 'gender_id' ang primary key mo, manual find natin
+        
         $gender = Gender::find($genderId);
 
         if (!$gender) {
@@ -48,7 +48,7 @@ class GenderController extends Controller
         ], 200);
     }
 
-    public function updateGender(Request $request, $genderId) // Pinalitan ko ng $genderId
+    public function updateGender(Request $request, $genderId) 
     {
         $gender = Gender::find($genderId);
 
@@ -70,7 +70,7 @@ class GenderController extends Controller
         ], 200);
     }
 
-    public function destroyGender($genderId) // Pinalitan ko ng $genderId
+    public function destroyGender($genderId) 
     {
         $gender = Gender::find($genderId);
 
@@ -79,7 +79,7 @@ class GenderController extends Controller
         }
 
         $gender->update([
-            'is_deleted' => 1 // 1 means true/deleted
+            'is_deleted' => 1 
         ]);
 
         return response()->json([

@@ -7,9 +7,9 @@ import {
   TableRow,
 } from "../../../components/table";
 import { Link } from "react-router-dom";
-import type { GenderColumns } from "../../../interfaces/GendersColumns";
 import GenderService from "../../../services/GenderService";
 import Spinner from "../../../components/Spinner/Spinner";
+import type { GenderColumns } from "../../../interfaces/GenderInterface";
 
 interface GenderListProps {
   refreshKey: boolean;

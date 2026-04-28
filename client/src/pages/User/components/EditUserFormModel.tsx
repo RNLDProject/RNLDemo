@@ -4,11 +4,10 @@ import SubmitButton from "../../../components/Button/SubmitButton";
 import FloatingLabelInput from "../../../components/input/FloatingLabelInput";
 import FloatingLabelSelect from "../../../components/input/Select/FloatingLabelSelect";
 import Modal from "../../../components/Modal";
-import type { UserColumns } from "../../../interfaces/UserColumns";
-import type { UserFieldErrors } from "../../../interfaces/UserFieldErrors";
-import type { GenderColumns } from "../../../interfaces/GendersColumns";
 import GenderService from "../../../services/GenderService";
 import UserService from "../../../services/UserService";
+import type { UserColumns, UserFieldErrors } from "../../../interfaces/UserInterface";
+import type { GenderColumns } from "../../../interfaces/GenderInterface";
 
 interface EditUserFormModelProps {
   user: UserColumns | null;

@@ -3,87 +3,91 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\TblUser;
+use App\Models\User; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function loadUsers()
+    public function loadUsers(Request $request)
     {
-        $query = TblUser::with('gender');
+        $search = $request->input('search');
 
-        // Some existing databases do not yet have is_deleted on tbl_users.
-        if (Schema::hasColumn('tbl_users', 'is_deleted')) {
-            $query->where(function ($subQuery) {
-                $subQuery->where('is_deleted', 0)
-                    ->orWhereNull('is_deleted');
+        $users = User::with(['gender'])
+            ->leftJoin('tbl_genders', 'tbl_users.gender_id', '=', 'tbl_genders.gender_id')
+            ->where('tbl_users.is_deleted', false)
+            ->orderBy('tbl_users.last_name', 'asc')
+            ->orderBy('tbl_users.first_name', 'asc')
+            ->orderBy('tbl_users.middle_name', 'asc')
+            ->orderBy('tbl_users.suffix_name', 'asc');
+
+        if ($search) {
+            $users->where(function ($user) use ($search) {
+                $user->where('tbl_users.first_name', 'like', "%{$search}%")
+                    ->orWhere('tbl_users.middle_name', 'like', "%{$search}%")
+                    ->orWhere('tbl_users.last_name', 'like', "%{$search}%")
+                    ->orWhere('tbl_users.suffix_name', 'like', "%{$search}%")
+                    ->orWhere('tbl_genders.gender', 'like', "%{$search}%");
             });
         }
 
-        $users = $query->latest('user_id')->get();
+        $users = $users->paginate(15);
 
         return response()->json([
-            'users' => $users,
+            'users' => $users
         ], 200);
     }
-    
-    
+
     public function storeUser(Request $request)
     {
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:55'],
+            'first_name'  => ['required', 'string', 'max:55'],
             'middle_name' => ['nullable', 'string', 'max:55'],
-            'last_name' => ['required', 'string', 'max:55'],
+            'last_name'   => ['required', 'string', 'max:55'],
             'suffix_name' => ['nullable', 'string', 'max:55'],
-            'gender_id' => ['required', 'integer', 'exists:tbl_genders,gender_id'],
-            'birth_date' => ['required', 'date'],
-            'username' => ['required', 'string', 'max:55', Rule::unique('tbl_users', 'username')],
-            'password' => ['required', 'string', 'min:6', 'max:255', 'confirmed'],
+            'gender_id'   => ['required', 'integer', 'exists:tbl_genders,gender_id'],
+            'birth_date'  => ['required', 'date'],
+            'username'    => ['required', 'string', 'max:55', Rule::unique('tbl_users', 'username')],
+            'password'    => ['required', 'string', 'min:6', 'max:255', 'confirmed'],
         ]);
-        
+
         $age = date_diff(date_create($validated['birth_date']), date_create('now'))->y;
-        
-        $user = TblUser::create([
-            'first_name' => $validated['first_name'],
+
+        $user = User::create([
+            'first_name'  => $validated['first_name'],
             'middle_name' => $validated['middle_name'] ?? null,
-            'last_name' => $validated['last_name'],
+            'last_name'   => $validated['last_name'],
             'suffix_name' => $validated['suffix_name'] ?? null,
-            'gender_id' => $validated['gender_id'],
-            'birth_date' => $validated['birth_date'],
-            'age' => $age,
-            'username' => $validated['username'],
-            'password' => bcrypt($validated['password']),
+            'gender_id'   => $validated['gender_id'],
+            'birth_date'  => $validated['birth_date'],
+            'age'         => $age,
+            'username'    => $validated['username'],
+            'password'    => bcrypt($validated['password']),
+            'is_deleted'  => false,
         ]);
 
         return response()->json([
-            'user' => $user->load('gender'),
+            'user'    => $user->load('gender'),
             'message' => 'User Successfully Saved.',
         ], 201);
-    }
-    
-    // Backwards-compatible alias (if you ever wire /user/store -> store)
-    public function store(Request $request)
-    {
-        return $this->storeUser($request);
     }
 
     public function updateUser(Request $request, $userId)
     {
-        $user = TblUser::find($userId);
+        $user = User::find($userId);
         if (!$user) {
             return response()->json(['message' => 'Not Found'], 404);
         }
 
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:55'],
+            'first_name'  => ['required', 'string', 'max:55'],
             'middle_name' => ['nullable', 'string', 'max:55'],
-            'last_name' => ['required', 'string', 'max:55'],
+            'last_name'   => ['required', 'string', 'max:55'],
             'suffix_name' => ['nullable', 'string', 'max:55'],
-            'gender_id' => ['required', 'integer', 'exists:tbl_genders,gender_id'],
-            'birth_date' => ['required', 'date'],
-            'username' => [
+            'gender_id'   => ['required', 'integer', 'exists:tbl_genders,gender_id'],
+            'birth_date'  => ['required', 'date'],
+            'username'    => [
                 'required',
                 'string',
                 'max:55',
@@ -94,34 +98,30 @@ class UserController extends Controller
         $age = date_diff(date_create($validated['birth_date']), date_create('now'))->y;
 
         $user->update([
-            'first_name' => $validated['first_name'],
+            'first_name'  => $validated['first_name'],
             'middle_name' => $validated['middle_name'] ?? null,
-            'last_name' => $validated['last_name'],
+            'last_name'   => $validated['last_name'],
             'suffix_name' => $validated['suffix_name'] ?? null,
-            'gender_id' => $validated['gender_id'],
-            'birth_date' => $validated['birth_date'],
-            'age' => $age,
-            'username' => $validated['username'],
+            'gender_id'   => $validated['gender_id'],
+            'birth_date'  => $validated['birth_date'],
+            'age'         => $age,
+            'username'    => $validated['username'],
         ]);
 
         return response()->json([
             'message' => 'User Successfully Updated.',
-            'user' => $user->load('gender'),
+            'user'    => $user->load('gender'),
         ], 200);
     }
 
     public function destroyUser($userId)
     {
-        $user = TblUser::find($userId);
+        $user = User::find($userId);
         if (!$user) {
             return response()->json(['message' => 'Not Found'], 404);
         }
 
-        if (Schema::hasColumn('tbl_users', 'is_deleted')) {
-            $user->update(['is_deleted' => 1]);
-        } else {
-            $user->delete();
-        }
+        $user->update(['is_deleted' => true]);
 
         return response()->json([
             'message' => 'User Successfully Deleted.',

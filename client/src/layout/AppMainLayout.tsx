@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import AppHeader from "./appheader";
-import AppSidebar from "./appssidebar";
+import AppHeader from "./AppHeader";
+import AppSidebar from "./AppSidebar";
 import { SidebarProvider } from "../Context/SideBarContext";
 import { HeaderProvider } from "../Context/HeaderContext";
 
