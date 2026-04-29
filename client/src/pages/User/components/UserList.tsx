@@ -29,7 +29,7 @@ const UserList: FC<UserListProps> = ({
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [userTableCurrentPage, setUserTableCurrentPage] = useState(1);
-  const [userTableLastPage, setUserTableLastPage] = useState(1);
+  const [, setUserTableLastPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
   const tableRef = useRef<HTMLDivElement>(null);
@@ -65,6 +65,7 @@ const UserList: FC<UserListProps> = ({
     }
   }, [hasMore, loadingUsers, userTableCurrentPage, debouncedSearch]);
 
+  // ETO YUNG HANDLE USER FORMAT NA GAYA SA SCREENSHOT
   const handleUserFullNameFormat = (user: UserColumns) => {
     let fullName = "";
     if (user.middle_name) {
@@ -101,110 +102,128 @@ const UserList: FC<UserListProps> = ({
   }, [refreshKey, debouncedSearch]);
 
   return (
-    <>
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-        <div 
-          ref={tableRef} 
-          className="relative max-w-full max-h-[calc(100vh-8.5rem)] overflow-y-auto overflow-x-auto"
-        >
-          <Table className="table-fixed min-w-[900px] w-full">
-            <caption className="mb-4">
-              <div className="border-b border-gray-100">
-                <div className="p-4 flex justify-between">
-                  <div className='w-64'>
-                    <FloatingLabelInput 
-                      label='Search' 
-                      type='text' 
-                      name='search' 
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      autoFocus 
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={onAddUser}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg transition cursor-pointer"
-                  >
-                    Add User
-                  </button>
-                </div>
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div 
+        ref={tableRef} 
+        className="relative max-w-full max-h-[calc(100vh-8.5rem)] overflow-y-auto overflow-x-auto"
+      >
+        <Table className="table-fixed min-w-[900px] w-full">
+          <caption className="mb-4">
+            <div className="border-b border-gray-100 p-4 flex justify-between items-center">
+              <div className='w-64'>
+                <FloatingLabelInput 
+                  label='Search' 
+                  type='text' 
+                  name='search' 
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  autoFocus 
+                />
               </div>
-            </caption>
-            <TableHeader className="border-b border-gray-200 bg-blue-600 sticky top-0 text-white text-xs z-10">
-              <TableRow>
-                <TableCell isHeader className="w-[8%] px-5 py-3 font-medium text-center">No.</TableCell>
-                <TableCell isHeader className="w-[20%] px-5 py-3 font-medium text-left">Full Name</TableCell>
-                <TableCell isHeader className="w-[15%] px-5 py-3 font-medium text-left">Gender</TableCell>
-                <TableCell isHeader className="w-[20%] px-5 py-3 font-medium text-center">Birth Date</TableCell>
-                <TableCell isHeader className="w-[8%] px-5 py-3 font-medium text-center">Age</TableCell>
-                <TableCell isHeader className="w-[12%] px-5 py-3 font-medium text-center">Action</TableCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="divide-y divide-gray-100 text-gray-500 text-sm">
-              {!loadingUsers && users.length <= 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="px-4 py-3 text-center font-medium">
-                    No Records Found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <>
-                  {users.map((user, index) => (
-                    <TableRow className="hover:bg-gray-100" key={user.user_id || index}>
-                      <TableCell className="px-4 py-3 text-center align-top">
-                        {index + 1}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-left align-top break-words whitespace-normal font-medium text-gray-900">
-                        {handleUserFullNameFormat(user)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-left align-top">
-                        {typeof user.gender === "object" && user.gender !== null
-                          ? user.gender.gender
-                          : String(user.gender)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-center align-top">
-                        {user.birth_date}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-center align-top">
-                        {user.age}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-center align-top">
-                        <div className="flex justify-center gap-4">
-                          <button 
-                            type="button" 
-                            onClick={() => onEditUser(user)} 
-                            className="text-green-600 font-medium cursor-pointer hover:underline"
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            type="button" 
-                            onClick={() => onDeleteUser(user)} 
-                            className="text-red-600 font-medium cursor-pointer hover:underline"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </>
-              )}
+              <button
+                type="button"
+                onClick={onAddUser}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg transition cursor-pointer"
+              >
+                Add User
+              </button>
+            </div>
+          </caption>
 
-           
-              {loadingUsers && (
-                <TableRow>
-                  <TableCell colSpan={6} className="px-4 py-3 text-center">
-                    <Spinner size="md" />
+          <TableHeader className="border-b border-gray-200 bg-blue-600 sticky top-0 text-white text-xs z-10">
+            <TableRow>
+              <TableCell isHeader className="w-[5%] px-5 py-3 font-medium text-center">No.</TableCell>
+              {/* Sa screenshot, ito ay blanko or Action header sa code mo pero ang content ay image */}
+              <TableCell isHeader className="w-[8%] px-5 py-3 font-medium text-center">Photo</TableCell>
+              <TableCell isHeader className="w-[25%] px-5 py-3 font-medium text-start">Full Name</TableCell>
+              <TableCell isHeader className="w-[15%] px-5 py-3 font-medium text-start">Gender</TableCell>
+              <TableCell isHeader className="w-[15%] px-5 py-3 font-medium text-start">Birth Date</TableCell>
+              <TableCell isHeader className="w-[8%] px-5 py-3 font-medium text-start">Age</TableCell>
+              <TableCell isHeader className="w-[12%] px-5 py-3 font-medium text-center">Action</TableCell>
+            </TableRow>
+          </TableHeader>
+
+          {/* GINAYA ANG LOGIC NG TABLEBODY SA SCREENSHOT (IMAGE_A75599.PNG) */}
+          <TableBody className="divide-y divide-gray-100 text-gray-500 text-sm">
+            {(users.length ?? 0) > 0 ? (
+              users.map((user, index) => (
+                <TableRow className="hover:bg-gray-100" key={index}>
+                  <TableCell className="px-4 py-3 text-center">
+                    {index + 1}
+                  </TableCell>
+
+                  {/* ETO YUNG PHOTO LOGIC SA SCREENSHOT (Line 218-228) */}
+                  <TableCell className="py-3 items-end justify-end">
+                    {user.profile_picture ? (
+                       <img 
+                         src={user.profile_picture} 
+                         alt={handleUserFullNameFormat(user)} 
+                         className="object-cover w-10 h-10 rounded-full"
+                       />
+                    ) : (
+                       <div className="relative inline-flex items-center justify-center overflow-hidden bg-gray-300 rounded-full w-10 h-10">
+                         <span className="font-medium text-gray-600">
+                           {`${user.last_name.charAt(0)}${user.first_name.charAt(0)}`}
+                         </span>
+                       </div>
+                    )}
+                  </TableCell>
+
+                  <TableCell className="px-4 py-3 text-start">
+                    {handleUserFullNameFormat(user)}
+                  </TableCell>
+
+                  <TableCell className="px-4 py-3 text-start">
+                      {(user.gender as any)?.gender || user.gender}
+                  </TableCell>
+
+                  <TableCell className="px-4 py-3 text-start">
+                    {user.birth_date}
+                  </TableCell>
+
+                  <TableCell className="px-4 py-3 text-start">
+                    {user.age}
+                  </TableCell>
+
+                  <TableCell className="px-4 py-3 text-center">
+                    <div className="flex gap-4 justify-center">
+                      <button 
+                        type="button" 
+                        onClick={() => onEditUser(user)} 
+                        className="text-green-600 font-medium cursor-pointer hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => onDeleteUser(user)} 
+                        className="text-red-600 font-medium cursor-pointer hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            ) : (
+              !loadingUsers && (
+                <TableRow>
+                  <TableCell colSpan={7} className="px-4 py-3 text-center">No Records Found</TableCell>
+                </TableRow>
+              )
+            )}
+
+            {loadingUsers && (
+              <TableRow>
+                <TableCell colSpan={7} className="px-4 py-3 text-center">
+                  <Spinner size="md" />
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 import { useState, type FC, type FormEvent } from "react";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react"; 
 import SubmitButton from "../../../components/Button/SubmitButton";
 import FloatingLabelInput from "../../../components/input/FloatingLabelInput";
 import type { LoginCredentialsErrorFields } from "../../../interfaces/AuthInterface"; 
@@ -15,16 +16,19 @@ const LoginForm: FC<LoginFormProps> = ({ message }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<LoginCredentialsErrorFields>({});
+  
+  // 1. State para sa pag-show/hide ng password
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e: FormEvent) => {
-    e.preventDefault(); // Siguraduhing nauna ito
+    e.preventDefault(); 
     setIsLoading(true);
 
     try {
-      await login(username, password); //
+      await login(username, password); 
       navigate("/genders");
     } catch (error: unknown) {
       if (isAxiosError(error) && error.response?.status === 401) {
@@ -58,17 +62,35 @@ const LoginForm: FC<LoginFormProps> = ({ message }) => {
           autoFocus
         />
       </div>
-      <div className="mb-4">
+
+      {/* 2. Password Field na may Mata Icon */}
+      <div className="mb-4 relative"> 
         <FloatingLabelInput
           label="Password"
-          type="password"
+          // 3. Palitan ang type base sa state
+          type={showPassword ? "text" : "password"}
           name="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           errors={errors.password}
         />
+        
+        {/* 4. Button para sa Mata */}
+        <button
+          type="button" // Siguraduhin na type="button" para hindi mag-submit ang form
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+          style={{ zIndex: 10 }} // Para sigurado na clickable sa ibabaw ng input
+        >
+          {showPassword ? (
+            <EyeOff size={20} />
+          ) : (
+            <Eye size={20} />
+          )}
+        </button>
       </div>
+
       <SubmitButton
         className="w-full"
         label="Sign In"

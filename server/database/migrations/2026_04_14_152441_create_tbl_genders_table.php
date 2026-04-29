@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration 
+{ // <--- Added opening brace
     /**
      * Run the migrations.
      */
@@ -17,28 +17,7 @@ return new class extends Migration
             $table->tinyInteger('is_deleted')->default(false);
             $table->timestamps();
         });
-
-        Schema::create('tbl_users', function (Blueprint $table) {
-            $table->id('user_id');
-            $table->string('first_name', 55);
-            $table->string('middle_name', 55)->nullable();
-            $table->string('last_name', 55);
-            $table->string('suffix_name', 55)->nullable();
-            $table->unsignedBigInteger('gender_id');
-            $table->date('birth_date');
-            $table->integer('age');
-            $table->string('username', 55);
-            $table->string('password', 255);
-            $table->tinyInteger('is_deleted')->default(false);
-            $table->timestamps();
-
-            $table->foreign('gender_id')
-                ->references('gender_id')
-                ->on('tbl_genders')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-        });
-    }
+    } // <--- Added closing brace for up()
 
     /**
      * Reverse the migrations.
@@ -47,10 +26,10 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
         
-        
         Schema::dropIfExists('users'); 
         Schema::dropIfExists('tbl_users');
         Schema::dropIfExists('tbl_genders');
+        
         Schema::enableForeignKeyConstraints();
     }
-};
+}; // <--- Added closing brace for class

@@ -10,19 +10,27 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->foreignId('gender_id')
-                ->nullable()
-                ->constrained('tbl_genders', 'gender_id')
-                ->nullOnDelete();
-            $table->rememberToken();
+    { 
+        Schema::create('tbl_users', function (Blueprint $table) {
+            $table->id('user_id');
+            $table->string('profile_picture', 255)->nullable(); 
+            $table->string('first_name', 55);
+            $table->string('middle_name', 55)->nullable();
+            $table->string('last_name', 55);
+            $table->string('suffix_name', 55)->nullable();
+            $table->unsignedBigInteger('gender_id');
+            $table->date('birth_date');
+            $table->integer('age');
+            $table->string('username', 55);
+            $table->string('password', 255);
+            $table->tinyInteger('is_deleted')->default(false);
             $table->timestamps();
+
+            $table->foreign('gender_id')
+                ->references('gender_id')
+                ->on('tbl_genders')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
     
@@ -31,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('tbl_users'); 
     }
 };

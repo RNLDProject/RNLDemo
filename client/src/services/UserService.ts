@@ -1,40 +1,44 @@
-import AxiosInstance from "./AxiosInstance";
+import AxiosInstance from "./AxiosInstance"; 
 
-export const UserService = {
-  loadUsers: async (page: number, search: string) => {
-    try {
-      const response = await AxiosInstance.get(search 
-        ? `user/loadUsers?page=${page}&search=${search}` 
-        : `/user/loadUsers?page=${page}`
-      );
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
-  storeUser: async (data: any) => {
-    const response = await AxiosInstance.post("/user/storeUser", data);
+const UserService = {
+   
+    loadUsers: async (_page: number, _searchTerm: string) => {
+        try {
+            const response = await AxiosInstance.get("/user/loadUsers");
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+   
+    storeUser: async (data: any) => {
+        try {
+            const response = await AxiosInstance.post("/user/storeUser", data);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    // UserService.ts
+updateUser: async (userId: string | number, data: FormData) => {
+    // Dapat POST ang method dito para mabasa ng Laravel ang multipart/form-data
+    const response = await AxiosInstance.post(`/user/updateUser/${userId}`, data);
     return response;
-  },
-  updateUser: async (userId: string | number, data: any) => {
-    try {
-      const response = await AxiosInstance.put(
-        `/user/updateUser/${userId}`,
-        data
-      );
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
-  destroyUser: async (userId: string | number) => {
-    try {
-      const response = await AxiosInstance.put(`/user/destroyUser/${userId}`);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
+},
+
+    destroyUser: async (userId: string | number) => {
+        try {
+            const response = await AxiosInstance.put(`/user/destroyUser/${userId}`);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+        
+    },
 };
+
+
 
 export default UserService;

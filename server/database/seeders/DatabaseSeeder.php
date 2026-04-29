@@ -6,41 +6,35 @@ use App\Models\User;
 use App\Models\Gender; 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash; // Para sa password hashing
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        
-        Gender::factory()->createMany([
-            ['gender' => 'Male'],
-            ['gender' => 'Female'],
-            ['gender' => 'Prefer not to say'],
-        ]);
+        // 1. Gawa muna ng Genders
+        // Ginamit ko ang updateOrCreate para iwas duplicate error kung sakali
+        $genders = ['Male', 'Female', 'Prefer not to say'];
+        foreach ($genders as $g) {
+            Gender::firstOrCreate(['gender' => $g]);
+        }
 
-       
-        $birthDate = fake()->date();
-        $age = date_diff(date_create($birthDate), date_create('now'))->y;
-
-        
+        // 2. Gawa ng bagong Admin User (Palit na kay johndoe)
         User::factory()->create([
-            'first_name' => 'John',
-            'middle_name' => 'Santos',
-            'last_name' => 'Doe',
+            'first_name' => 'System',
+            'middle_name' => null,
+            'last_name' => 'Admin',
             'suffix_name' => null, 
-            'gender_id' => Gender::inRandomOrder()->first()->gender_id,
-            'birth_date' => $birthDate,
-            'age' => $age,
-            'username' => 'johndoe',
-            'password' => Hash::make('johndoe'),
+            'gender_id' => 1, // 'Male' ang id nito karaniwan
+            'birth_date' => '1995-01-01',
+            'age' => 31,
+            'username' => 'admin',
+            'password' => Hash::make('admin123'), // Bagong password
         ]);
 
-            User::factory(100)->create();
+        // 3. Gawa ng 10 extra random users
+        User::factory(10)->create();
     }
 }

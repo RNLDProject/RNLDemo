@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -9,31 +10,35 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     public function login(Request $request)
-    {
-        $validated = $request->validate([
-            'username' => ['required', 'min:6', 'max:12'],
-            'password' => ['required', 'min:6', 'max:12'],
-        ]);
+{
+    // 1. Tanggalin muna natin ang 'min' validation para siguradong papasok
+    $validated = $request->validate([
+        'username' => ['required', 'string'],
+        'password' => ['required', 'string'],
+    ]);
 
-        $user = User::with('gender')
-            ->where('username', $validated['username'])
-            ->where('is_deleted', false)
+    // 2. HANAPIN ANG USER LANG (Wala munang .with('gender') para iwas 500 error)
+    $user = User::where('username', $validated['username'])
+            ->where('is_deleted', 0) // tinyInteger use 0
             ->first();
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
-            return response()->json([
-                'message' => 'The provided credentials are incorrect',
-            ], 401);
-        }
-
-        $user->tokens()->delete();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+    // 3. I-check kung may nahanap at kung tama ang password
+    if (!$user || !Hash::check($validated['password'], $user->password)) {
         return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ], 200);
+            'message' => 'The provided credentials are incorrect',
+        ], 401);
     }
+
+    // 4. Generate Token
+    $user->tokens()->delete();
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    // 5. I-load ang gender pagkatapos para sure na hindi mag-crash ang login
+    return response()->json([
+        'user' => $user->load('gender'), 
+        'token' => $token,
+    ], 200);
+}
 
     public function logout(Request $request)
     {
