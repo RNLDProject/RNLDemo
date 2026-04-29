@@ -27,7 +27,7 @@ const AddUserFormModal: FC<AddUserFormModalProps> = ({
   const [genders, setGenders] = useState<GenderColumns[]>([]);
   const [loadingStore, setLoadingStore] = useState(false);
   
-  // State for Form Fields
+  
   const [addUserProfilePicture, setAddUserProfilePicture] = useState<File | null>(null);
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
@@ -73,7 +73,7 @@ const AddUserFormModal: FC<AddUserFormModalProps> = ({
     if (isOpen) {
       handleLoadGenders();
     } else {
-      resetForm(); // Reset form pag sinara ang modal
+      resetForm(); 
     }
   }, [isOpen]);
 

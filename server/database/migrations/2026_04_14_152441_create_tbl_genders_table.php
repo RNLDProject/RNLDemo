@@ -5,10 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration 
-{ // <--- Added opening brace
-    /**
-     * Run the migrations.
-     */
+{ 
+    
     public function up(): void
     {
         Schema::create('tbl_genders', function (Blueprint $table) {
@@ -17,11 +15,9 @@ return new class extends Migration
             $table->tinyInteger('is_deleted')->default(false);
             $table->timestamps();
         });
-    } // <--- Added closing brace for up()
+    } 
 
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::disableForeignKeyConstraints();
@@ -32,4 +28,4 @@ return new class extends Migration
         
         Schema::enableForeignKeyConstraints();
     }
-}; // <--- Added closing brace for class
+}; 

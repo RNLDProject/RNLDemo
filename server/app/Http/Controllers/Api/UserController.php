@@ -8,12 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log; 
 
 class UserController extends Controller
 {
-    /**
-     * Load and search users with gender relationship.
-     */
+    
     public function loadUsers(Request $request)
     {
         $search = $request->input('search');
@@ -50,9 +49,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created user.
-     */
+    
     public function storeUser(Request $request)
     {
         $validated = $request->validate([
@@ -99,11 +96,12 @@ class UserController extends Controller
         ], 201);
     }
 
-    /**
-     * Update the specified user.
-     */
+    
     public function updateUser(Request $request, User $user)
     {
+        
+        Log::info('Updating User ID: ' . $user->user_id, $request->all());
+
         $validated = $request->validate([
             'edit_user_profile_picture' => ['nullable', 'image', 'mimes:png,jpg,jpeg'],
             'first_name'   => ['required', 'string', 'max:55'],
@@ -112,18 +110,24 @@ class UserController extends Controller
             'suffix_name'  => ['nullable', 'string', 'max:55'],
             'gender_id'    => ['required', 'integer', 'exists:tbl_genders,gender_id'],
             'birth_date'   => ['required', 'date'],
-            'username'     => ['required', 'min:6', 'max:12', Rule::unique('tbl_users', 'username')->ignore($user->user_id, 'user_id')],
+            'username'     => ['required', 'min:5', 'max:12', Rule::unique('tbl_users', 'username')->ignore($user->user_id, 'user_id')],
         ]);
 
-        if ($request->has('remove_profile_picture') && $request->remove_profile_picture == '1') {
-            if ($user->profile_picture && Storage::exists('public/img/user/profile_picture/' . $user->profile_picture)) {
-                Storage::delete('public/img/user/profile_picture/' . $user->profile_picture);
+        
+        $currentPicture = $user->getRawOriginal('profile_picture');
+        $finalProfilePicture = $currentPicture; 
+
+        
+        if ($request->remove_profile_picture == '1') {
+            if ($currentPicture && Storage::exists('public/img/user/profile_picture/' . $currentPicture)) {
+                Storage::delete('public/img/user/profile_picture/' . $currentPicture);
             }
-            $validated['edit_user_profile_picture'] = null;
+            $finalProfilePicture = null;
         } 
+        
         else if ($request->hasFile('edit_user_profile_picture')) {
-            if ($user->profile_picture && Storage::exists('public/img/user/profile_picture/' . $user->profile_picture)) {
-                Storage::delete('public/img/user/profile_picture/' . $user->profile_picture);
+            if ($currentPicture && Storage::exists('public/img/user/profile_picture/' . $currentPicture)) {
+                Storage::delete('public/img/user/profile_picture/' . $currentPicture);
             }
 
             $file = $request->file('edit_user_profile_picture');
@@ -132,13 +136,13 @@ class UserController extends Controller
             $filenameToStore = sha1($filename . time()) . '.' . $extension;
 
             $file->storeAs('public/img/user/profile_picture', $filenameToStore);
-            $validated['edit_user_profile_picture'] = $filenameToStore;
+            $finalProfilePicture = $filenameToStore;
         }
 
         $age = date_diff(date_create($validated['birth_date']), date_create('now'))->y;
 
         $user->update([
-            'profile_picture' => $validated['edit_user_profile_picture'] ?? $user->profile_picture,
+            'profile_picture' => $finalProfilePicture,
             'first_name'      => $validated['first_name'],
             'middle_name'     => $validated['middle_name'],
             'last_name'       => $validated['last_name'],
@@ -149,6 +153,7 @@ class UserController extends Controller
             'username'        => $validated['username'],
         ]);
 
+        
         $user->profile_picture = $user->profile_picture 
                 ? url('storage/public/img/user/profile_picture/' . $user->profile_picture) 
                 : null;
@@ -159,12 +164,9 @@ class UserController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified user (Soft Delete).
-     */
+    
     public function destroyUser(User $user)
     {
-        // Ina-update ang is_deleted flag imbes na i-delete ang row
         $user->update([
             'is_deleted' => true
         ]);

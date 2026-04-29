@@ -27,7 +27,7 @@ const EditUserFormModel: FC<EditUserFormModelProps> = ({
   const [genders, setGenders] = useState<GenderColumns[]>([]);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   
-  // States
+  
   const [existingProfilePicture, setExistingProfilePicture] = useState<string | null>(null);
   const [editUserProfilePicture, setEditUserProfilePicture] = useState<File | null>(null);
   const [firstName, setFirstName] = useState("");
@@ -69,7 +69,7 @@ const EditUserFormModel: FC<EditUserFormModelProps> = ({
       setBirthDate(user.birth_date || "");
       setUsername(user.username || "");
       setExistingProfilePicture(user.profile_picture || null);
-      setEditUserProfilePicture(null);
+      setEditUserProfilePicture(null); 
       setErrors({});
     }
   }, [user, isOpen]);
@@ -82,41 +82,37 @@ const EditUserFormModel: FC<EditUserFormModelProps> = ({
     setErrors({});
 
     try {
-        const formData = new FormData();
-        
-        // ETO ANG PINAKA-IMPORTANTE:
-        // Sasabihin natin sa Laravel na "PUT" talaga ang request na ito
-        formData.append('_method', 'PUT'); 
+      const formData = new FormData();
+      formData.append('_method', 'PUT'); 
 
-        // I-append ang image kung may bago
-        if (editUserProfilePicture) {
-            formData.append("edit_user_profile_picture", editUserProfilePicture);
-        } else if (!existingProfilePicture) {
-            formData.append("remove_profile_picture", "1");
-        }
+      if (editUserProfilePicture) {
+        formData.append("edit_user_profile_picture", editUserProfilePicture);
+      } else if (!existingProfilePicture) {
+        formData.append("remove_profile_picture", "1");
+      }
 
-        // I-append ang iba pang fields
-        formData.append("first_name", firstName);
-        formData.append("middle_name", middleName || '');
-        formData.append("last_name", lastName);
-        formData.append("suffix_name", suffixName || '');
-        formData.append("gender_id", genderId); 
-        formData.append("birth_date", birthDate);
-        formData.append("username", username);
+      formData.append("first_name", firstName);
+      formData.append("middle_name", middleName || '');
+      formData.append("last_name", lastName);
+      formData.append("suffix_name", suffixName || '');
+      formData.append("gender_id", genderId); 
+      formData.append("birth_date", birthDate);
+      formData.append("username", username);
 
-        // Tawagin ang service
-        const res = await UserService.updateUser(user.user_id, formData);
-        
-        if (res.status === 200) {
-            onUserUpdated(res.data.message);
-            onClose();
-        }
+      const res = await UserService.updateUser(user.user_id, formData);
+      
+      if (res.status === 200) {
+        onUserUpdated(res.data.message);
+        onClose();
+      }
     } catch (error: any) {
-        // ... handling errors
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+      }
     } finally {
-        setLoadingUpdate(false);
+      setLoadingUpdate(false);
     }
-};
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} showCloseButton>
@@ -125,16 +121,21 @@ const EditUserFormModel: FC<EditUserFormModelProps> = ({
           Edit User Form
         </h1>
         
-        <div className="mb-4 px-4">
-          <UploadInput 
-            label='Profile Picture' 
-            name='edit_user_profile_picture' 
-            value={editUserProfilePicture} 
-            onChange={setEditUserProfilePicture} 
-            onRemoveExistingImageUrl={() => setExistingProfilePicture(null)}
-            existingImageUrl={existingProfilePicture}   
-            errors={errors.edit_user_profile_picture} 
-          />
+        <div className="mb-4 px-4 flex flex-col items-center justify-center">
+          <div className="w-full max-w-md">
+            
+            <UploadInput 
+              label='Profile Picture' 
+              name='edit_user_profile_picture' 
+              value={editUserProfilePicture} 
+              onChange={setEditUserProfilePicture} 
+              onRemoveExistingImageUrl={() => {
+                setExistingProfilePicture(null);
+              }}
+              existingImageUrl={existingProfilePicture}   
+              errors={errors.edit_user_profile_picture} 
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 border-b border-gray-100 mb-4 p-4">

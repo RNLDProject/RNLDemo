@@ -1,16 +1,19 @@
 import AxiosInstance from "./AxiosInstance"; 
 
 const UserService = {
-   
-    loadUsers: async (_page: number, _searchTerm: string) => {
+    loadUsers: async (page: number, search: string = "") => {
         try {
-            const response = await AxiosInstance.get("/user/loadUsers");
+            const response = await AxiosInstance.get("/user/loadUsers", {
+                params: {
+                    page: page,
+                    search: search 
+                }
+            });
             return response;
         } catch (error) {
             throw error;
         }
     },
-
    
     storeUser: async (data: any) => {
         try {
@@ -21,9 +24,9 @@ const UserService = {
         }
     },
 
-    // UserService.ts
+   
 updateUser: async (userId: string | number, data: FormData) => {
-    // Dapat POST ang method dito para mabasa ng Laravel ang multipart/form-data
+    
     const response = await AxiosInstance.post(`/user/updateUser/${userId}`, data);
     return response;
 },

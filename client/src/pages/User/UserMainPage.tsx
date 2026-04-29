@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; 
 import ToastMessage from "../../components/ToastMessage/ToastMessage";
 import { useModal } from "../../hooks/useModal";
 import { useRefresh } from "../../hooks/useRefresh";
@@ -10,6 +10,8 @@ import UserList from "./components/UserList";
 
 
 const UserMainPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const {
     isOpen: isAddUserFormModalOpen,
     openModal: openAddUserFormModal,
@@ -74,11 +76,14 @@ const UserMainPage = () => {
         onClose={closeDeleteUserFormModal}
       />
 
+     
       <UserList
         onAddUser={() => openAddUserFormModal(null)}
         onEditUser={(user) => openEditUserFormModal(user)}
         onDeleteUser={(user) => openDeleteUserFormModal(user)}
         refreshKey={refresh}
+        searchTerm={searchTerm} 
+        onSearchChange={setSearchTerm}
       />
     </>
   );

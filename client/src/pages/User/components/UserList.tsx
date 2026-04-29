@@ -13,9 +13,11 @@ import FloatingLabelInput from "../../../components/input/FloatingLabelInput";
 
 interface UserListProps {
   onAddUser: () => void;
+  onEditUser: (user: any) => void;
+  onDeleteUser: (user: any) => void;
   refreshKey: boolean;
-  onEditUser: (user: UserColumns | null) => void;
-  onDeleteUser: (user: UserColumns | null) => void;
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
 }
 
 const UserList: FC<UserListProps> = ({
@@ -65,7 +67,7 @@ const UserList: FC<UserListProps> = ({
     }
   }, [hasMore, loadingUsers, userTableCurrentPage, debouncedSearch]);
 
-  // ETO YUNG HANDLE USER FORMAT NA GAYA SA SCREENSHOT
+  
   const handleUserFullNameFormat = (user: UserColumns) => {
     let fullName = "";
     if (user.middle_name) {
@@ -133,7 +135,7 @@ const UserList: FC<UserListProps> = ({
           <TableHeader className="border-b border-gray-200 bg-blue-600 sticky top-0 text-white text-xs z-10">
             <TableRow>
               <TableCell isHeader className="w-[5%] px-5 py-3 font-medium text-center">No.</TableCell>
-              {/* Sa screenshot, ito ay blanko or Action header sa code mo pero ang content ay image */}
+              
               <TableCell isHeader className="w-[8%] px-5 py-3 font-medium text-center">Photo</TableCell>
               <TableCell isHeader className="w-[25%] px-5 py-3 font-medium text-start">Full Name</TableCell>
               <TableCell isHeader className="w-[15%] px-5 py-3 font-medium text-start">Gender</TableCell>
@@ -143,7 +145,7 @@ const UserList: FC<UserListProps> = ({
             </TableRow>
           </TableHeader>
 
-          {/* GINAYA ANG LOGIC NG TABLEBODY SA SCREENSHOT (IMAGE_A75599.PNG) */}
+          
           <TableBody className="divide-y divide-gray-100 text-gray-500 text-sm">
             {(users.length ?? 0) > 0 ? (
               users.map((user, index) => (
@@ -152,7 +154,7 @@ const UserList: FC<UserListProps> = ({
                     {index + 1}
                   </TableCell>
 
-                  {/* ETO YUNG PHOTO LOGIC SA SCREENSHOT (Line 218-228) */}
+                 
                   <TableCell className="py-3 items-end justify-end">
                     {user.profile_picture ? (
                        <img 
